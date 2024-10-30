@@ -32,7 +32,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-pip
-        pip3 install --upgrade aliyun-cli
+        wget https://files.pythonhosted.org/packages/source/a/aliyun-cli/aliyun-cli-3.0.108.tar.gz
+        tar -xzf aliyun-cli-3.0.108.tar.gz
+        cd aliyun-cli-3.0.108
+        python3 setup.py install
 
     - name: Fetch geosite.dat and geoip.dat
       run: |
