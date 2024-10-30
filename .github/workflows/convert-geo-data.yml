@@ -20,7 +20,7 @@ jobs:
 
     - name: Install v2ray-core using Go
       run: |
-        go install github.com/v2fly/v2ray-core/v4@v5.22.0
+        go install github.com/v2fly/v2ray-core@v5.22.0
 
     - name: Download geosite.dat
       run: |
