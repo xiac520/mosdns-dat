@@ -30,15 +30,15 @@ jobs:
 
     - name: Convert geoip.dat to geoip_cn.txt and geoip_private.txt
       run: |
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geoip --country CN > geoip_cn.txt
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geoip --private > geoip_private.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geoip --country CN > geoip_cn.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geoip --private > geoip_private.txt
 
     - name: Convert geosite.dat to specified text files
       run: |
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geosite --name category-ads-all > geosite_category-ads-all.txt
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geosite --name gfw > geosite_gfw.txt
-        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ctl geosite --name cn > geosite_cn.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geosite --name category-ads-all > geosite_category-ads-all.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geosite --name gfw > geosite_gfw.txt
+        docker run --rm -v $(pwd):/data v2fly/v2fly-core:latest v2ray geosite --name cn > geosite_cn.txt
 
     - name: Commit and push changes
       run: |
