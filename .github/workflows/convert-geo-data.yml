@@ -18,10 +18,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y wget unzip curl git
 
-    - name: Install v2ray-core using fhs-install-v2ray script
+    - name: Download and extract v2ray-core
       run: |
-        curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh -o install-release.sh
-        sudo bash install-release.sh
+        wget https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
+        unzip v2ray-linux-64.zip -d v2ray-core
+        sudo mv v2ray-core/v2ray /usr/local/bin/v2ray
+        sudo mv v2ray-core/v2ctl /usr/local/bin/v2ctl
+        sudo chmod +x /usr/local/bin/v2ray /usr/local/bin/v2ctl
 
     - name: Download geosite.dat
       run: |
