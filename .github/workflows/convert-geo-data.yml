@@ -28,6 +28,12 @@ jobs:
       run: |
         go install github.com/urlesistiana/v2dat@latest
 
+    - name: Install Aliyun OSS CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip3 install --user aliyun-python-sdk-core-v3 aliyun-python-sdk-oss2
+
     - name: Fetch geosite.dat and geoip.dat
       run: |
         curl -LJO https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
@@ -53,12 +59,6 @@ jobs:
       run: |
         mv dat/* .
 
-    - name: Install Aliyun OSS CLI
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-        pip3 install aliyun-python-sdk-core-v3 aliyun-python-sdk-oss2
-
     - name: Upload files to Aliyun OSS
       env:
         ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
@@ -70,4 +70,6 @@ jobs:
         import oss2
         auth = oss2.Auth('${ALIYUN_ACCESS_KEY_ID}', '${ALIYUN_ACCESS_KEY_SECRET}')
         bucket = oss2.Bucket(auth, '${ALIYUN_OSS_ENDPOINT}', '${ALIYUN_OSS_BUCKET}')
-        for file in ['geoip.dat', 'geoip_cn.txt', 'geoip_private.txt', 'geosite.dat', 'geosite_category-ads-all.txt', 'geosite_cn.txt', 'geosite_geolocation-!cn.txt', 'geosite_gfw.txt
+        for file in ['geoip.dat', 'geoip_cn.txt', 'geoip_private.txt', 'geosite.dat', 'geosite_category-ads-all.txt', 'geosite_cn.txt', 'geosite_geolocation-!cn.txt', 'geosite_gfw.txt']:
+            bucket.put_object_from_file(file, file)
+        "
