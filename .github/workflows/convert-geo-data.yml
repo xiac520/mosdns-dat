@@ -42,7 +42,7 @@ jobs:
         QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
         QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
       run: |
-        qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY
+        qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY "default_user"
 
     - name: Fetch geosite.dat and geoip.dat
       run: |
