@@ -28,21 +28,21 @@ jobs:
       run: |
         go install github.com/urlesistiana/v2dat@latest
 
-    - name: Install Aliyun CLI
+    - name: Install qshell
       run: |
-        wget https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz?spm=5176.8466032.console-base_help.1.683c14509cD8ib -O aliyun-cli.tgz
-        tar -xzf aliyun-cli.tgz
-        sudo cp aliyun /usr/local/bin
-        echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bash_profile
-        source ~/.bash_profile
+        wget https://kodo-toolbox-new.qiniu.com/qshell-v2.15.0-linux-amd64.tar.gz
+        tar -xzf qshell-v2.15.0-linux-amd64.tar.gz
+        sudo mv qshell /usr/local/bin/
+        chmod +x /usr/local/bin/qshell
+        echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
+        source ~/.bashrc
 
-    - name: Configure Aliyun CLI
+    - name: Configure qshell
       env:
-        ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
-        ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
-        ALIYUN_REGION: ${{ secrets.ALIYUN_REGION }}
+        QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+        QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
       run: |
-        aliyun configure set --profile default --region $ALIYUN_REGION --access-key-id $ALIYUN_ACCESS_KEY_ID --access-key-secret $ALIYUN_ACCESS_KEY_SECRET
+        qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY
 
     - name: Fetch geosite.dat and geoip.dat
       run: |
@@ -69,18 +69,15 @@ jobs:
       run: |
         mv dat/* .
 
-    - name: Upload files to Aliyun OSS
+    - name: Upload files to Qiniu Cloud
       env:
-        ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
-        ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
-        ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
-        ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+        QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
       run: |
-        aliyun oss cp geoip.dat oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip.dat
-        aliyun oss cp geoip_cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip_cn.txt
-        aliyun oss cp geoip_private.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip_private.txt
-        aliyun oss cp geosite.dat oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite.dat
-        aliyun oss cp geosite_category-ads-all.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_category-ads-all.txt
-        aliyun oss cp geosite_cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_cn.txt
-        aliyun oss cp geosite_geolocation-!cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_geolocation-!cn.txt
-        aliyun oss cp geosite_gfw.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_gfw.txt
+        qshell rput $QINIU_BUCKET mosdns/geoip.dat geoip.dat
+        qshell rput $QINIU_BUCKET mosdns/geoip_cn.txt geoip_cn.txt
+        qshell rput $QINIU_BUCKET mosdns/geoip_private.txt geoip_private.txt
+        qshell rput $QINIU_BUCKET mosdns/geosite.dat geosite.dat
+        qshell rput $QINIU_BUCKET mosdns/geosite_category-ads-all.txt geosite_category-ads-all.txt
+        qshell rput $QINIU_BUCKET mosdns/geosite_cn.txt geosite_cn.txt
+        qshell rput $QINIU_BUCKET mosdns/geosite_geolocation-!cn.txt geosite_geolocation-!cn.txt
+        qshell rput $QINIU_BUCKET mosdns/geosite_gfw.txt geosite_gfw.txt
