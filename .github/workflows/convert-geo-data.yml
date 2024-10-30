@@ -1,54 +1,64 @@
-name: Convert Geo Data
+name: Fetch and Decode Geo Files
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: '0 0 * * 5'  # 每周五午夜运行
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
-  convert-geo-data:
-    runs-on: ubuntu-20.04
+  fetch-and-decode-geo-files:
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Ubuntu 20.04 environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip curl git
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.19.2
 
-    - name: Install v2ray-core using fhs-install-v2ray script
+    - name: Install v2dat
       run: |
-        curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh -o install-release.sh
-        sudo bash install-release.sh
+        go install github.com/urlesistiana/v2dat@latest
 
-    - name: Download geosite.dat
+    - name: Fetch geosite.dat and geoip.dat
       run: |
-        wget -O geosite.dat $(curl -s https://api.github.com/repos/Loyalsoldier/domain-list-custom/releases/latest | grep browser_download_url | grep geosite.dat | cut -d '"' -f 4)
+        curl -LJO https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
+        curl -LJO https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
 
-    - name: Download geoip.dat
+    - name: Create output directory
       run: |
-        wget -O geoip.dat $(curl -s https://api.github.com/repos/Loyalsoldier/geoip/releases/latest | grep browser_download_url | grep geoip.dat | cut -d '"' -f 4)
+        mkdir -p dat
 
-    - name: Convert geoip.dat to geoip_cn.txt and geoip_private.txt
+    - name: Unpack geoip.dat
       run: |
-        v2ray geoip --country CN > geoip_cn.txt
-        v2ray geoip --private > geoip_private.txt
+        v2dat unpack geoip -o dat -f "private" geoip.dat
+        v2dat unpack geoip -o dat -f "cn" geoip.dat
 
-    - name: Convert geosite.dat to specified text files
+    - name: Unpack geosite.dat
       run: |
-        v2ray geosite --name category-ads-all > geosite_category-ads-all.txt
-        v2ray geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
-        v2ray geosite --name gfw > geosite_gfw.txt
-        v2ray geosite --name cn > geosite_cn.txt
+        v2dat unpack geosite -o dat -f "cn" geosite.dat
+        v2dat unpack geosite -o dat -f "gfw" geosite.dat
+        v2dat unpack geosite -o dat -f "category-ads-all" geosite.dat
+        v2dat unpack geosite -o dat -f "geolocation-!cn" geosite.dat
+
+    - name: Move decoded files to root directory
+      run: |
+        mv dat/* .
 
     - name: Commit and push changes
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Update geo data files"
-        git push origin main
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        git commit -m "Update geo files"
+        git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
