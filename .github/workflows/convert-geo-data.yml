@@ -20,7 +20,8 @@ jobs:
 
     - name: Install v2ray-core using fhs-install-v2ray script
       run: |
-        sudo bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
+        curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh -o install-release.sh
+        sudo bash install-release.sh
 
     - name: Download geosite.dat
       run: |
