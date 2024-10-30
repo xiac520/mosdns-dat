@@ -28,10 +28,16 @@ jobs:
       run: |
         go install github.com/urlesistiana/v2dat@latest
 
+    - name: Get latest qshell version
+      id: get_latest_qshell_version
+      run: |
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/qiniu/qshell/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "::set-output name=version::$LATEST_VERSION"
+
     - name: Install qshell
       run: |
-        wget https://kodo-toolbox-new.qiniu.com/qshell-v2.15.0-linux-amd64.tar.gz
-        tar -xzf qshell-v2.15.0-linux-amd64.tar.gz
+        wget https://github.com/qiniu/qshell/releases/download/${{ steps.get_latest_qshell_version.outputs.version }}/qshell-linux-amd64.tar.gz
+        tar -xzf qshell-linux-amd64.tar.gz
         sudo mv qshell /usr/local/bin/
         chmod +x /usr/local/bin/qshell
         echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
