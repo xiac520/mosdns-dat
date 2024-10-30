@@ -13,18 +13,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Ubuntu 20.04 environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip curl git
+    - name: Set up Go environment
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.23.2
 
-    - name: Download and extract v2ray-core
+    - name: Install v2ray-core using Go
       run: |
-        wget https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
-        unzip v2ray-linux-64.zip -d v2ray-core
-        sudo mv v2ray-core/v2ray /usr/local/bin/v2ray
-        sudo mv v2ray-core/v2ctl /usr/local/bin/v2ctl
-        sudo chmod +x /usr/local/bin/v2ray /usr/local/bin/v2ctl
+        go install github.com/v2fly/v2ray-core/v4@v5.22.0
 
     - name: Download geosite.dat
       run: |
@@ -36,15 +32,15 @@ jobs:
 
     - name: Convert geoip.dat to geoip_cn.txt and geoip_private.txt
       run: |
-        /usr/local/bin/v2ctl geoip --country CN > geoip_cn.txt
-        /usr/local/bin/v2ctl geoip --private > geoip_private.txt
+        v2ctl geoip --country CN > geoip_cn.txt
+        v2ctl geoip --private > geoip_private.txt
 
     - name: Convert geosite.dat to specified text files
       run: |
-        /usr/local/bin/v2ctl geosite --name category-ads-all > geosite_category-ads-all.txt
-        /usr/local/bin/v2ctl geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
-        /usr/local/bin/v2ctl geosite --name gfw > geosite_gfw.txt
-        /usr/local/bin/v2ctl geosite --name cn > geosite_cn.txt
+        v2ctl geosite --name category-ads-all > geosite_category-ads-all.txt
+        v2ctl geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
+        v2ctl geosite --name gfw > geosite_gfw.txt
+        v2ctl geosite --name cn > geosite_cn.txt
 
     - name: Commit and push changes
       run: |
