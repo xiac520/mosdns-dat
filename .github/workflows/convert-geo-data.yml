@@ -1,0 +1,53 @@
+name: Convert Geo Data
+
+on:
+  schedule:
+    - cron: '0 0 * * 5'  # 每周五午夜运行
+
+jobs:
+  convert-geo-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Download geosite.dat
+      run: |
+        wget -O geosite.dat $(curl -s https://api.github.com/repos/Loyalsoldier/domain-list-custom/releases/latest | grep browser_download_url | grep geosite.dat | cut -d '"' -f 4)
+
+    - name: Download geoip.dat
+      run: |
+        wget -O geoip.dat $(curl -s https://api.github.com/repos/Loyalsoldier/geoip/releases/latest | grep browser_download_url | grep geoip.dat | cut -d '"' -f 4)
+
+    - name: Install v2ray-core
+      run: |
+        go get -u v2ray.com/core/common/errors
+        go get -u v2ray.com/core/infra/control/main
+
+    - name: Convert geoip.dat to geoip_cn.txt and geoip_private.txt
+      run: |
+        v2ctl geoip --country CN > geoip_cn.txt
+        v2ctl geoip --private > geoip_private.txt
+
+    - name: Convert geosite.dat to specified text files
+      run: |
+        v2ctl geosite --name category-ads-all > geosite_category-ads-all.txt
+        v2ctl geosite --name geolocation-!cn > geosite_geolocation-!cn.txt
+        v2ctl geosite --name gfw > geosite_gfw.txt
+        v2ctl geosite --name cn > geosite_cn.txt
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update geo data files"
+        git push origin main
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
