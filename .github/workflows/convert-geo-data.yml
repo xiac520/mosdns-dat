@@ -18,6 +18,10 @@ jobs:
       with:
         go-version: 1.23.2
 
+    - name: Install v2ray-core using fhs-install-v2ray script
+      run: |
+        bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
+
     - name: Download geosite.dat
       run: |
         wget -O geosite.dat $(curl -s https://api.github.com/repos/Loyalsoldier/domain-list-custom/releases/latest | grep browser_download_url | grep geosite.dat | cut -d '"' -f 4)
@@ -25,14 +29,6 @@ jobs:
     - name: Download geoip.dat
       run: |
         wget -O geoip.dat $(curl -s https://api.github.com/repos/Loyalsoldier/geoip/releases/latest | grep browser_download_url | grep geoip.dat | cut -d '"' -f 4)
-
-    - name: Download and extract v2ray-core v4.31.0
-      run: |
-        wget https://github.com/v2fly/v2ray-core/releases/download/v4.31.0/v2ray-linux-64.zip
-        unzip v2ray-linux-64.zip -d v2ray-core
-        sudo mv v2ray-core/v2ray /usr/local/bin/v2ray
-        sudo mv v2ray-core/v2ctl /usr/local/bin/v2ctl
-        sudo chmod +x /usr/local/bin/v2ray /usr/local/bin/v2ctl
 
     - name: Convert geoip.dat to geoip_cn.txt and geoip_private.txt
       run: |
