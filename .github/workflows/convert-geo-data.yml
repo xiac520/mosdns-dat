@@ -36,6 +36,10 @@ jobs:
         echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bash_profile
         source ~/.bash_profile
 
+    - name: Configure Aliyun CLI
+      run: |
+        aliyun configure set --profile default --region ${{ secrets.ALIYUN_REGION }} --access-key-id ${{ secrets.ALIYUN_ACCESS_KEY_ID }} --access-key-secret ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+
     - name: Fetch geosite.dat and geoip.dat
       run: |
         curl -LJO https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
