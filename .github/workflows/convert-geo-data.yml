@@ -53,12 +53,21 @@ jobs:
       run: |
         mv dat/* .
 
-    - name: Commit and push changes
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    - name: Install Aliyun OSS CLI
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add .
-        git commit -m "Update geo files"
-        git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip3 install aliyun-python-sdk-core-v3 aliyun-python-sdk-oss2
+
+    - name: Upload files to Aliyun OSS
+      env:
+        ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+        ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+        ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+        ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+      run: |
+        python3 -c "
+        import oss2
+        auth = oss2.Auth('${ALIYUN_ACCESS_KEY_ID}', '${ALIYUN_ACCESS_KEY_SECRET}')
+        bucket = oss2.Bucket(auth, '${ALIYUN_OSS_ENDPOINT}', '${ALIYUN_OSS_BUCKET}')
+        for file in ['geoip.dat', 'geoip_cn.txt', 'geoip_private.txt', 'geosite.dat', 'geosite_category-ads-all.txt', 'geosite_cn.txt', 'geosite_geolocation-!cn.txt', 'geosite_gfw.txt
