@@ -7,41 +7,20 @@ on:
 
 jobs:
   convert-geo-data:
-    runs-on: debian-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Debian environment
+    - name: Set up Ubuntu 20.04 environment
       run: |
         sudo apt-get update
         sudo apt-get install -y wget unzip curl git
 
-    - name: Configure APT pinning for V2Ray
+    - name: Install v2ray-core using fhs-install-v2ray script
       run: |
-        echo "Explanation: Uninstall or do not install any Debian-originated" | sudo tee /etc/apt/preferences
-        echo "Explanation: package versions other than those in the stable distro" | sudo tee -a /etc/apt/preferences
-        echo "Package: *" | sudo tee -a /etc/apt/preferences
-        echo "Pin: release a=stable" | sudo tee -a /etc/apt/preferences
-        echo "Pin-Priority: 900" | sudo tee -a /etc/apt/preferences
-        echo "" | sudo tee -a /etc/apt/preferences
-        echo "Package: *" | sudo tee -a /etc/apt/preferences
-        echo "Pin: release o=Debian" | sudo tee -a /etc/apt/preferences
-        echo "Pin-Priority: -10" | sudo tee -a /etc/apt/preferences
-        echo "Package: v2ray" | sudo tee /etc/apt/preferences.d/90debian-unstable
-        echo "Pin: release a=unstable" | sudo tee -a /etc/apt/preferences.d/90debian-unstable
-        echo "Pin-Priority: 900" | sudo tee -a /etc/apt/preferences.d/90debian-unstable
-
-    - name: Add Unstable repository
-      run: |
-        echo "deb https://deb.debian.org/debian/ sid main" | sudo tee /etc/apt/sources.list.d/debian-unstable.list
-        echo "deb-src https://deb.debian.org/debian/ sid main" | sudo tee -a /etc/apt/sources.list.d/debian-unstable.list
-        sudo apt-get update
-
-    - name: Install V2Ray
-      run: |
-        sudo apt-get install -y v2ray
+        bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
 
     - name: Download geosite.dat
       run: |
