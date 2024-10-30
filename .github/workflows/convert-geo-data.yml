@@ -28,14 +28,17 @@ jobs:
       run: |
         go install github.com/urlesistiana/v2dat@latest
 
+    - name: Get latest Aliyun CLI version
+      id: get_latest_aliyun_cli_version
+      run: |
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/aliyun/aliyun-cli/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "::set-output name=version::$LATEST_VERSION"
+
     - name: Install Aliyun CLI
       run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-        wget https://files.pythonhosted.org/packages/source/a/aliyun-cli/aliyun-cli-3.0.108.tar.gz
-        tar -xzf aliyun-cli-3.0.108.tar.gz
-        cd aliyun-cli-3.0.108
-        python3 setup.py install
+        wget https://github.com/aliyun/aliyun-cli/releases/download/${{ steps.get_latest_aliyun_cli_version.outputs.version }}/aliyun-cli-linux-${{ steps.get_latest_aliyun_cli_version.outputs.version }}-amd64.tgz -O aliyun-cli.tgz
+        tar -xzf aliyun-cli.tgz
+        sudo mv aliyun /usr/local/bin/
 
     - name: Fetch geosite.dat and geoip.dat
       run: |
