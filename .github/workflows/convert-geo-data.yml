@@ -23,6 +23,10 @@ jobs:
         curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh -o install-release.sh
         sudo bash install-release.sh
 
+    - name: Add /usr/local/bin to PATH
+      run: |
+        echo 'export PATH=$PATH:/usr/local/bin' >> $GITHUB_ENV
+
     - name: Download geosite.dat
       run: |
         wget -O geosite.dat $(curl -s https://api.github.com/repos/Loyalsoldier/domain-list-custom/releases/latest | grep browser_download_url | grep geosite.dat | cut -d '"' -f 4)
