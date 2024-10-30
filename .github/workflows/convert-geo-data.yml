@@ -28,11 +28,11 @@ jobs:
       run: |
         go install github.com/urlesistiana/v2dat@latest
 
-    - name: Install Aliyun OSS CLI
+    - name: Install Aliyun CLI
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-pip
-        pip3 install --user aliyun-python-sdk-core-v3 aliyun-python-sdk-oss2
+        pip3 install --upgrade aliyun-cli
 
     - name: Fetch geosite.dat and geoip.dat
       run: |
@@ -66,10 +66,11 @@ jobs:
         ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
         ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
       run: |
-        python3 -c "
-        import oss2
-        auth = oss2.Auth('${ALIYUN_ACCESS_KEY_ID}', '${ALIYUN_ACCESS_KEY_SECRET}')
-        bucket = oss2.Bucket(auth, '${ALIYUN_OSS_ENDPOINT}', '${ALIYUN_OSS_BUCKET}')
-        for file in ['geoip.dat', 'geoip_cn.txt', 'geoip_private.txt', 'geosite.dat', 'geosite_category-ads-all.txt', 'geosite_cn.txt', 'geosite_geolocation-!cn.txt', 'geosite_gfw.txt']:
-            bucket.put_object_from_file(file, file)
-        "
+        aliyun oss cp geoip.dat oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip.dat
+        aliyun oss cp geoip_cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip_cn.txt
+        aliyun oss cp geoip_private.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geoip_private.txt
+        aliyun oss cp geosite.dat oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite.dat
+        aliyun oss cp geosite_category-ads-all.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_category-ads-all.txt
+        aliyun oss cp geosite_cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_cn.txt
+        aliyun oss cp geosite_geolocation-!cn.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_geolocation-!cn.txt
+        aliyun oss cp geosite_gfw.txt oss://${{ secrets.ALIYUN_OSS_BUCKET }}/geosite_gfw.txt
